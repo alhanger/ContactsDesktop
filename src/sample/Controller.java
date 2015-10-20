@@ -12,7 +12,10 @@ import jodd.json.JsonSerializer;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Array;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable{
@@ -31,6 +34,16 @@ public class Controller implements Initializable{
 
     public void initialize(URL location, ResourceBundle resources) {
         listView.setItems(contacts);
+
+        String content = readFile("contacts.json");
+        if (content != null) {
+            JsonParser parser = new JsonParser();
+            ArrayList<HashMap<String, String>> contactsFromFile = parser.parse(content);
+            for (HashMap<String, String> contact : contactsFromFile) {
+                Contact c = new Contact(contact.get("name"), contact.get("phoneNum"), contact.get("email"));
+                contacts.add(c);
+            }
+        }
     }
 
     public void addContact() {
@@ -82,9 +95,6 @@ public class Controller implements Initializable{
     }
 
     static void parseContacts() {
-        String content = readFile("contacts.json");
 
-        JsonParser parser = new JsonParser();
-        parser.parse(content, ObservableList<Contact> contacts);
     }
 }
