@@ -34,16 +34,7 @@ public class Controller implements Initializable{
 
     public void initialize(URL location, ResourceBundle resources) {
         listView.setItems(contacts);
-
-        String content = readFile("contacts.json");
-        if (content != null) {
-            JsonParser parser = new JsonParser();
-            ArrayList<HashMap<String, String>> contactsFromFile = parser.parse(content);
-            for (HashMap<String, String> contact : contactsFromFile) {
-                Contact c = new Contact(contact.get("name"), contact.get("phoneNum"), contact.get("email"));
-                contacts.add(c);
-            }
-        }
+        parseContacts(contacts);
     }
 
     public void addContact() {
@@ -61,6 +52,25 @@ public class Controller implements Initializable{
         Contact contact = (Contact) listView.getSelectionModel().getSelectedItem();
         contacts.remove(contact);
         writeToJson(contacts);
+    }
+
+    static void parseContacts(ObservableList<Contact> contacts) {
+        String content = readFile("contacts.json");
+        if (content != null) {
+            JsonParser parser = new JsonParser();
+            ArrayList<HashMap<String, String>> contactsFromFile = parser.parse(content);
+            for (HashMap<String, String> contact : contactsFromFile) {
+                Contact c = new Contact(contact.get("name"), contact.get("phoneNum"), contact.get("email"));
+                contacts.add(c);
+            }
+        }
+    }
+
+    static void writeToJson (ObservableList<Contact> contacts) {
+        JsonSerializer serializer = new JsonSerializer();
+        String output = serializer.serialize(contacts);
+
+        writeFile("contacts.json", output);
     }
 
     static String readFile (String fileName) {
@@ -85,16 +95,5 @@ public class Controller implements Initializable{
         } catch (Exception e) {
 
         }
-    }
-
-    static void writeToJson (ObservableList<Contact> contacts) {
-        JsonSerializer serializer = new JsonSerializer();
-        String output = serializer.serialize(contacts);
-
-        writeFile("contacts.json", output);
-    }
-
-    static void parseContacts() {
-
     }
 }
